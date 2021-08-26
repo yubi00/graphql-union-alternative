@@ -9,7 +9,7 @@ const typeDefs = gql`
 
   input Competition {
     id: ID!
-    name: String!
+    title: String!
     status: String
   }
 
@@ -34,6 +34,8 @@ const typeDefs = gql`
     id: ID
     name: String
     status: String
+    title: String
+    content: String
   }
 
   type Mutation {
@@ -59,12 +61,12 @@ let contents = [
   },
   {
     id: 'cid1',
-    name: 'coomp1',
+    title: 'coomp1',
     status: 'ready',
   },
   {
     id: 'cid2',
-    name: 'comp2',
+    title: 'comp2',
     status: 'draft',
   },
 ];
@@ -82,6 +84,12 @@ const resolvers = {
 
       return null;
     },
+    content: (parent) => {
+      if (parent.name === null) {
+        return parent.title;
+      }
+      return parent.name;
+    },
   },
 
   Query: {
@@ -94,7 +102,21 @@ const resolvers = {
       const res = inputContents.map(
         (content) => content[Object.keys(content)[0]]
       );
-      return [...contents, ...res];
+      const result = [...contents, ...res].map((data) => {
+        if (!data['name']) {
+          return {
+            ...data,
+            name: null,
+          };
+        }
+        if (!data['title']) {
+          return {
+            ...data,
+            title: null,
+          };
+        }
+      });
+      return result;
     },
   },
 };
